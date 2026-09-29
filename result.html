@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        {{ comic.title }} - ComicCraft
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', path='css/style.css') }}"
+    >
+
+</head>
+
+<body>
+
+<header class="navbar">
+
+    <div class="logo">
+        🎨 ComicCraft
+    </div>
+
+    <nav>
+
+        <a href="/">Create</a>
+
+        <a href="/history">History</a>
+
+    </nav>
+
+</header>
+
+
+<main class="container">
+
+    <section class="card">
+
+        <div class="result-header">
+
+            <span class="badge">
+                {{ comic.genre }}
+            </span>
+
+            <h1>
+                {{ comic.title }}
+            </h1>
+
+            <p>
+                Created by {{ comic.creator_name }}
+            </p>
+
+        </div>
+
+
+        <div class="toolbar">
+
+            <button
+                type="button"
+                onclick="copyScript()"
+                class="secondary-button"
+            >
+                📋 Copy Script
+            </button>
+
+            <button
+                type="button"
+                onclick="window.print()"
+                class="secondary-button"
+            >
+                🖨 Print
+            </button>
+
+            <a
+                href="/download/prompts/{{ comic.id }}"
+                class="secondary-button"
+            >
+                ⬇ Download Image Prompts
+            </a>
+
+        </div>
+
+
+        <div
+            id="comic-script"
+            class="comic-script"
+        >
+
+            {% for line in script.splitlines() %}
+
+                {% if line.upper().startswith("PANEL ") %}
+
+                    <div class="panel-heading">
+                        {{ line }}
+                    </div>
+
+                {% elif line.upper().startswith("SCENE:") %}
+
+                    <p>
+                        <strong>Scene:</strong>
+                        {{ line[6:] }}
+                    </p>
+
+                {% elif line.upper().startswith("NARRATION:") %}
+
+                    <p>
+                        <strong>Narration:</strong>
+                        {{ line[10:] }}
+                    </p>
+
+                {% elif line.upper().startswith("DIALOGUE:") %}
+
+                    <p>
+                        <strong>Dialogue:</strong>
+                        {{ line[9:] }}
+                    </p>
+
+                {% elif line.strip() %}
+
+                    <p>
+                        {{ line }}
+                    </p>
+
+                {% endif %}
+
+            {% endfor %}
+
+        </div>
+
+    </section>
+
+
+    <section class="card">
+
+        <h2>
+            🎨 Image Generation Prompts
+        </h2>
+
+        <p class="muted">
+            These prompts can be used with a compatible
+            image-generation model to create the artwork
+            for each panel.
+        </p>
+
+
+        {% for prompt in prompts %}
+
+            <div class="prompt-card">
+
+                <h3>
+                    Panel {{ loop.index }}
+                </h3>
+
+                <p>
+                    {{ prompt }}
+                </p>
+
+            </div>
+
+        {% endfor %}
+
+    </section>
+
+
+    <section class="card">
+
+        <h2>
+            Improve Your Comic
+        </h2>
+
+        <form
+            action="/feedback"
+            method="post"
+        >
+
+            <input
+                type="hidden"
+                name="comic_id"
+                value="{{ comic.id }}"
+            >
+
+            <textarea
+                name="feedback_text"
+                rows="5"
+                placeholder="Tell the AI how you want to improve the story..."
+                required
+            ></textarea>
+
+            <button
+                type="submit"
+                class="primary-button"
+            >
+                🔄 Improve Comic
+            </button>
+
+        </form>
+
+    </section>
+
+</main>
+
+
+<script
+    src="{{ url_for('static', path='js/script.js') }}"
+></script>
+
+</body>
+
+</html>
